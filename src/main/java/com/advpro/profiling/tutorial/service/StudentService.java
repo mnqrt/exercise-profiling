@@ -29,12 +29,7 @@ public class StudentService {
     }
 
     public Optional<Student> findStudentWithHighestGpa() {
-        List<Sort.Order> sortBy = new ArrayList<Sort.Order>();
-        sortBy.add(new Sort.Order(Sort.Direction.DESC, "gpa"));
-        sortBy.add(new Sort.Order(Sort.Direction.ASC, "name"));
-        List<Student> students = studentRepository.findAll(Sort.by(sortBy));
-        Student highestGpaStudent = students.get(0);
-        return Optional.ofNullable(highestGpaStudent);
+        return studentRepository.findTopByOrderByGpaDesc();
     }
 
     public String joinStudentNames() {
