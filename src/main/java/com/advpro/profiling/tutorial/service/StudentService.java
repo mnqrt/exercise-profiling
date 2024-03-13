@@ -6,6 +6,7 @@ import com.advpro.profiling.tutorial.repository.StudentCourseRepository;
 import com.advpro.profiling.tutorial.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,40 +25,24 @@ public class StudentService {
     private StudentCourseRepository studentCourseRepository;
 
     public List<StudentCourse> getAllStudentsWithCourses() {
-        List<Student> students = studentRepository.findAll();
-        List<StudentCourse> studentCourses = new ArrayList<>();
-        for (Student student : students) {
-            List<StudentCourse> studentCoursesByStudent = studentCourseRepository.findByStudentId(student.getId());
-            for (StudentCourse studentCourseByStudent : studentCoursesByStudent) {
-                StudentCourse studentCourse = new StudentCourse();
-                studentCourse.setStudent(student);
-                studentCourse.setCourse(studentCourseByStudent.getCourse());
-                studentCourses.add(studentCourse);
-            }
-        }
-        return studentCourses;
+        return studentCourseRepository.findAll();
     }
 
     public Optional<Student> findStudentWithHighestGpa() {
-        List<Student> students = studentRepository.findAll();
-        Student highestGpaStudent = null;
-        double highestGpa = 0.0;
-        for (Student student : students) {
-            if (student.getGpa() > highestGpa) {
-                highestGpa = student.getGpa();
-                highestGpaStudent = student;
-            }
-        }
+        List<Sort.Order> sortBy = new ArrayList<Sort.Order>();
+        sortBy.add(new Sort.Order(Sort.Direction.DESC, "gpa"));
+        sortBy.add(new Sort.Order(Sort.Direction.ASC, "name"));
+        List<Student> students = studentRepository.findAll(Sort.by(sortBy));
+        Student highestGpaStudent = students.get(0);
         return Optional.ofNullable(highestGpaStudent);
     }
 
     public String joinStudentNames() {
         List<Student> students = studentRepository.findAll();
-        String result = "";
+        StringBuilder result = new StringBuilder();
+        String coma = ", ";
         for (Student student : students) {
-            result += student.getName() + ", ";
+            result.append(student.getName()).append(coma);
         }
         return result.substring(0, result.length() - 2);
     }
-}
-
